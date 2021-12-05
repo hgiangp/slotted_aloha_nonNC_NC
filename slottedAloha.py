@@ -24,7 +24,7 @@ class SlottedAloha:
             tmp_g = G/2
             pass_pkt = 0
             queue_length = 0
-            print(tmp_g)
+            # print(tmp_g)
             queue_value = []
             for i in range(self.no_slot):  
                 ATrans = np.random.rand() < tmp_g
@@ -53,12 +53,15 @@ class SlottedAloha:
             self.thput_ana.append(self.thrput_non_coding(G))
             
         plt.plot(self._g, self.thput_sim, 'o', self._g, self.thput_ana, '-')
+        plt.grid(True)
+        # plt.xlim([0, 2])
         plt.xlabel('Offer Traffic, G = 2g')
         plt.ylabel('Throughput, S')
         plt.title('Non-NC System')
         plt.legend(['Simulation', 'Theoretical'])
         plt.savefig('non_nc.png')
         # plt.show()
+        plt.close()
     
     def thrput_coding(self, G, q): 
         S = 2*q*G*(2 - G)/(q*(2 + G)**2 - G**2)
@@ -131,13 +134,15 @@ class SlottedAloha:
                 legend_arr.append(f'Simulation, q = G/(2 + G) + 0.01')
                 legend_arr.append(f'Theoretical, q = G/(2 + G) + 0.01')
                
-
+        plt.grid(True)
+        # plt.xlim([0, 2])
         plt.xlabel('Offer Traffic, G = 2g')
         plt.ylabel('Throughput, S')
         plt.title('NC System')
         plt.legend(legend_arr)
         plt.savefig('nc.png')
         # plt.show() 
+        plt.close()
 
 
                     
@@ -147,5 +152,6 @@ class SlottedAloha:
 
 # if __name__ == '__main': 
 SA = SlottedAloha()
-SA.coding_plot()
 SA.non_coding()
+SA.coding_plot()
+
