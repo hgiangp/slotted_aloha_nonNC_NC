@@ -18,6 +18,10 @@ class SlottedAloha:
         S = G*(1-G/2)/(G + 1)
         return S 
 
+    def delay_coding(self, q, gr, G): 
+        D = 1 + 3*G/(gr* (2 - G)) + 2 /((2 - G)*(q(1 + G) - G))
+        return D
+
     def non_coding(self): 
 
         for G in self._g:
@@ -144,14 +148,78 @@ class SlottedAloha:
         # plt.show() 
         plt.close()
 
+    def ga_g_relation(self, gr, ga, q):
+        vA = 0
+        collision = False
+        cnt_trans = 0  
 
-                    
+        for i in range(self.no_slot): 
+            tmp_prb = ga 
+            if collision: 
+                tmp_prb = gr 
+
+            ATrans = np.random.rand() < tmp_prb
+            cnt_trans = cnt_trans + ATrans 
+
+            RTrans = ((vA > 0)) and (np.random.rand() < q)
+
+            if RTrans and ATrans: # collision 
+                collision = True # A retrans in next slot
+            else: 
+                collision = False # reset colliison 
+                vA = vA + 1
+        
+        return cnt_trans/self.no_slot 
+    
+    def run(self): 
+
+        gr = np.arange(0, 1.1, 0.1)
+        ga = np.arange(0, 1.1, 0.1)
+        q = 0.7 
+        g_arr = []
+        legend_arr = []
+
+        fig2, (ax2, ax3) = plt.subplots(nrows=1, ncols=2) # two axes on figureax3.plot(x, -z)
+        for ga_idx in ga: 
+            g_arr = [] 
+            for gr_idx in gr: 
+                g = self.ga_g_relation(gr_idx, ga_idx, q)
+                g_arr.append(g)
+            
+            ax2.plot(gr, g_arr, label=f'{ga_idx}')
+             
+            ax2.set_xlabel('g_r')
+            ax2.set_ylabel('g')
+            ax2.grid()
+            ax2.legend()
+
+
+        for gr_idx in gr: 
+            g_arr = [] 
+            for ga_idx in ga: 
+                g = self.ga_g_relation(gr_idx, ga_idx, q)
+                g_arr.append(g)
+             
+            ax3.plot(ga, g_arr, label=f'{gr_idx}')
+             
+            ax3.set_xlabel('g_a')
+            ax3.set_ylabel('g')
+            ax3.grid()
+            ax3.legend()
+
+
+
+        plt.savefig(f'./ga_gr/gr_g_relation.png')
+
+        
+
+            # plt.show()
 
 
 
 
 # if __name__ == '__main': 
 SA = SlottedAloha()
-SA.non_coding()
-SA.coding_plot()
-
+# SA.non_coding()
+# SA.coding_plot()
+SA.run()
