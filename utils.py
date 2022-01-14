@@ -12,7 +12,7 @@ class Packet:
 
 class EndNode: 
     def __init__(self): 
-        self.q = queue.Queue()
+        self.qnode = queue.Queue()
 
 class RelayNode: 
     def __init__(self): 

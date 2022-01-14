@@ -186,7 +186,7 @@ class SlottedAloha:
                 g = self.ga_g_relation(gr_idx, ga_idx, q)
                 g_arr.append(g)
             
-            ax2.plot(gr, g_arr, label=f'{ga_idx}')
+            ax2.plot(gr, g_arr, label='{:.1f}'.format(ga_idx))
              
             ax2.set_xlabel('g_r')
             ax2.set_ylabel('g')
@@ -200,7 +200,7 @@ class SlottedAloha:
                 g = self.ga_g_relation(gr_idx, ga_idx, q)
                 g_arr.append(g)
              
-            ax3.plot(ga, g_arr, label=f'{gr_idx}')
+            ax3.plot(ga, g_arr, label='{:.1f}'.format(gr_idx))
              
             ax3.set_xlabel('g_a')
             ax3.set_ylabel('g')
