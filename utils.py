@@ -1,4 +1,4 @@
-from collections import deque
+from queue import Queue 
 import numpy as np 
 class Packet: 
     def __init__(self, src, t_in): 
@@ -9,9 +9,6 @@ class Packet:
     
     def set_tout(self, t_out): 
         self.t_out = t_out
-
-    def get_delay(self): 
-        return (self.t_out - self.t_in + 1)
     
     def is_sent(self): 
         self.N_T = self.N_T + 1
@@ -25,31 +22,34 @@ class Packet:
 
 class EndNode: 
     def __init__(self, name, g_a, g_r): 
-        self.qnode = deque()
+        self.qnode = Queue()
         self.ga = g_a 
         self.gr = g_r 
         self.name = name
     
+    def get_queue_length(self): 
+        return self.qnode.qsize()
+    
 
     def send_a_packet(self, id): 
         is_new_pkt = np.random.rand() < self.ga 
-        is_send = is_new_pkt or (len(self.qnode) > 0 and np.random.rand() < self.gr)
+        is_send = is_new_pkt or (self.get_queue_length() > 0 and np.random.rand() < self.gr)
         
         A_pk = Packet(self.name, -1)
         if is_send: 
-            A_pk = Packet(self.name, id) if is_new_pkt else self.qnode.pop()
+            A_pk = Packet(self.name, id) if is_new_pkt else self.qnode.get()
             A_pk.is_sent() # remember the number of trans and retransmissions
 
         return is_send, A_pk 
     
     def enqueue_a_packet(self, packet): # collision happened 
-        self.qnode.append(packet)
+        self.qnode.put(packet)
     
 
 class RelayNode: 
     def __init__(self, q): 
-        self.vA = deque()
-        self.vB = deque()
+        self.vA = Queue()
+        self.vB = Queue()
         self.q = q 
     
     def enqueue(self, pk, t_in): 
@@ -57,9 +57,9 @@ class RelayNode:
             pk.set_tin_R(t_in) # set time entering the relay node R
 
         if pk.get_src() == 'A': 
-            self.vA.append(pk)
+            self.vA.put(pk)
         else: 
-            self.vB.append(pk)
+            self.vB.put(pk)
         
 
     def get_delay_pkt(self, pk, t_out): 
@@ -67,27 +67,21 @@ class RelayNode:
         return delay
 
     def send_a_packet(self): 
-        size_vA = len(self.vA) 
-        size_vB = len(self.vB)
+        size_vA = self.vA.qsize() 
+        size_vB = self.vB.qsize()
         is_send = (size_vA > 0 or size_vB > 0) and (np.random.rand() < self.q)
 
         pk_from_A = Packet('R', -1)
         pk_from_B = Packet('R', -1)
         
         if is_send: 
-            pk_from_A = self.vA.pop() if size_vA > 0 else pk_from_A 
-            pk_from_B = self.vB.pop() if size_vB > 0 else pk_from_B
+            pk_from_A = self.vA.get() if size_vA > 0 else pk_from_A 
+            pk_from_B = self.vB.get() if size_vB > 0 else pk_from_B
 
         return is_send, pk_from_A, pk_from_B
 
 
 def run(): 
-    pk = Packet('A', 3)
-    R = RelayNode() 
-    print('running')
-    R.vA.append(pk)
-    pk2 = R.vA[0]
-    R.vA.pop()    
-    print(f'pk2 src = {pk2.src} t_out = {pk2.t_out} t_in = {pk2.t_in}' )
+    A = EndNode('A', 0.5, 0.5)
 
 # run()

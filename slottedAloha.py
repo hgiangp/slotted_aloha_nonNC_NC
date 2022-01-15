@@ -175,7 +175,7 @@ class SlottedAloha:
 
         gr = np.arange(0, 1.1, 0.1)
         ga = np.arange(0, 1.1, 0.1)
-        q = 0.7 
+        q = 0.6 
         g_arr = []
         legend_arr = []
 
@@ -211,6 +211,26 @@ class SlottedAloha:
 
         plt.savefig(f'./ga_gr/gr_g_relation.png')
 
+    def run2(self):
+        gr = np.arange(0, 1.1, 0.1)
+        ga = np.arange(0, 1.1, 0.1)
+        q = 0.8
+        g_arr = []
+
+        for ga_idx in ga: 
+            g_arr = [] 
+            for gr_idx in gr: 
+                g = self.ga_g_relation(gr_idx, ga_idx, q)
+                g_arr.append(g)
+            
+            plt.plot(gr, g_arr, '-o', label='{:.1f}'.format(ga_idx))
+             
+            plt.xlabel('g_r')
+            plt.ylabel('g')
+            plt.yticks(np.arange(0, 1.1, step=0.1))
+            plt.grid()
+            plt.legend()
+            plt.savefig(f'./ga_gr/gr_g_{q}.png')
         
 
             # plt.show()
@@ -222,4 +242,6 @@ class SlottedAloha:
 SA = SlottedAloha()
 # SA.non_coding()
 # SA.coding_plot()
-SA.run()
+# SA.run()
+SA.run2()
+# print(np.arange(0, 1.1, step=0.1))

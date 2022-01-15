@@ -1,4 +1,4 @@
-import utils 
+import utils2 
 import numpy as np 
 from matplotlib import pyplot as plt 
 
@@ -32,14 +32,14 @@ class NetworkCoding:
 
 
         for g in self._g:
-            ga = g 
+            ga = g
             gr = g
 
             pass_pkt = 0 
             delay_pkt = 0 
-            A = utils.EndNode('A', ga, gr) 
-            B = utils.EndNode('B', ga, gr)
-            R = utils.RelayNode(self._q)
+            A = utils2.EndNode('A', ga, gr) 
+            B = utils2.EndNode('B', ga, gr)
+            R = utils2.RelayNode(self._q)
 
             for islot in range(self.no_slots): 
                 # Node A 
@@ -50,6 +50,7 @@ class NetworkCoding:
 
                 # Node R
                 R_is_send, pk_from_A, pk_from_B = R.send_a_packet()
+                
                 vA_not_empty = pk_from_A.t_in != -1  
                 vB_not_empty = pk_from_B.t_in != -1 
 
@@ -78,21 +79,21 @@ class NetworkCoding:
                             delay_pkt = delay_pkt + R.get_delay_pkt(pk_from_B, islot)
                             pass_pkt = pass_pkt + 1 
                     
-                    elif B_is_send and A_is_send == False: # collision between R and A
+                    elif A_is_send and B_is_send == False: # collision between R and A
                         if vB_not_empty: # R sent a coding packet from B and A || a native packet form B 
                             delay_pkt = delay_pkt + R.get_delay_pkt(pk_from_B, islot)
                             pass_pkt = pass_pkt + 1
                         if vA_not_empty: 
-                            R.enqueue(pk_from_A, -1)
-                            B.enqueue_a_packet(B_pk)
+                            R.enqueue_collision(pk_from_A)
+                            A.enqueue_a_packet(A_pk)
                             
-                    elif B_is_send == False and A_is_send == True: 
-                        if vA_not_empty: 
+                    elif A_is_send == False and B_is_send == True: 
+                        if vA_not_empty != 0: 
                             delay_pkt = delay_pkt + R.get_delay_pkt(pk_from_A, islot)
                             pass_pkt = pass_pkt + 1
                         if vB_not_empty: 
-                            R.enqueue(pk_from_B, -1)
-                            A.enqueue_a_packet(A_pk)
+                            R.enqueue_collision(pk_from_B)
+                            B.enqueue_a_packet(B_pk)
 
 
             throuput_sim.append(pass_pkt/self.no_slots)
@@ -120,27 +121,9 @@ class NetworkCoding:
         ax2.grid()
         ax2.legend()
         # plt.show()
-        plt.savefig(f'./th_delay_{self.no_slots}.png')
+        plt.savefig(f'./th_delay_2_{self.no_slots}.png')
 
 
 NC = NetworkCoding()
 NC.run()
-print(NC.delay_coding(0.5, 1, 0.6)) 
-
-
-
-                
-            
-
-
-
-
-
-
-                 
-
-            
-            
-            
-
-            
+print(NC.delay_coding(0.5, 1, 0.6))            
