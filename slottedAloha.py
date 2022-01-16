@@ -150,26 +150,46 @@ class SlottedAloha:
 
     def ga_g_relation(self, gr, ga, q):
         vA = 0
-        collision = False
+        vB = 0
+        collisionA = False
+        collisionB = False 
         cnt_trans = 0  
 
         for i in range(self.no_slot): 
-            tmp_prb = ga 
-            if collision: 
-                tmp_prb = gr 
 
-            ATrans = np.random.rand() < tmp_prb
-            cnt_trans = cnt_trans + ATrans 
+            ATrans = np.random.rand() < ga or ( collisionA and np.random.rand() < gr)
+            BTrans = np.random.rand() < ga or ( collisionB and np.random.rand() < gr)
 
-            RTrans = ((vA > 0)) and (np.random.rand() < q)
+            cnt_trans = cnt_trans + ATrans + BTrans
 
-            if RTrans and ATrans: # collision 
-                collision = True # A retrans in next slot
-            else: 
-                collision = False # reset colliison 
-                vA = vA + 1
-        
-        return cnt_trans/self.no_slot 
+            # RTrans = ((vA > 0)) and (np.random.rand() < q)
+
+            # if RTrans and ATrans: # collision 
+            #     collision = True # A retrans in next slot
+            # else: 
+            #     collision = False # reset colliison 
+            #     vA = vA + 1
+            RTrans = ((vA > 0) or (vB > 0)) and (np.random.rand() < q)
+
+            if RTrans == False: 
+                if ATrans:  
+                    if BTrans: 
+                        collisionA = True 
+                        collisionB = True 
+                    else:
+                        collisionA = False 
+                        vA = vA + 1 
+                else: 
+                    if BTrans: 
+                        collisionB = False 
+                        vB = vB + 1
+            else:
+                if BTrans: 
+                    collisionB = True 
+                if ATrans: 
+                    collisionA = True 
+
+        return (cnt_trans/2)/self.no_slot
     
     def run(self): 
 
@@ -214,7 +234,7 @@ class SlottedAloha:
     def run2(self):
         gr = np.arange(0, 1.1, 0.1)
         ga = np.arange(0, 1.1, 0.1)
-        q = 0.8
+        q = 0.6
         g_arr = []
 
         for ga_idx in ga: 
@@ -230,7 +250,7 @@ class SlottedAloha:
             plt.yticks(np.arange(0, 1.1, step=0.1))
             plt.grid()
             plt.legend()
-            plt.savefig(f'./ga_gr/gr_g_{q}.png')
+            plt.savefig(f'./ga_gr/gr_g_collision_{q}.png')
         
 
             # plt.show()

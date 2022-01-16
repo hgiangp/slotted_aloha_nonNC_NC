@@ -26,6 +26,7 @@ class EndNode:
         self.ga = g_a 
         self.gr = g_r 
         self.name = name
+        self.mode = 'B'
     
     def get_queue_length(self): 
         return self.qnode.qsize()
@@ -40,6 +41,7 @@ class EndNode:
             A_pk = Packet(self.name, id) if is_new_pkt else self.qnode.get()
             A_pk.is_sent() # remember the number of trans and retransmissions
 
+        # print(f'iter = {id} src = {A_pk.src} N_T = {A_pk.N_T} t_in = {A_pk.t_in}')
         return is_send, A_pk 
     
     def enqueue_a_packet(self, packet): # collision happened 
@@ -64,6 +66,7 @@ class RelayNode:
 
     def get_delay_pkt(self, pk, t_out): 
         delay = pk.N_T + (t_out - pk.t_in + 1) # ( # trans + retrans from end node ) + ( time in R's buffer) 
+        # print(f'N_T = {pk.N_T} t_in = {pk.t_in} t_out = {t_out} delay = {delay}')
         return delay
 
     def send_a_packet(self): 
@@ -77,6 +80,10 @@ class RelayNode:
         if is_send: 
             pk_from_A = self.vA.get() if size_vA > 0 else pk_from_A 
             pk_from_B = self.vB.get() if size_vB > 0 else pk_from_B
+        
+        # print(f'src = {pk_from_A.src} N_T = {pk_from_A.N_T} t_in = {pk_from_A.t_in} Relay node')
+        # print(f'src = {pk_from_B.src} N_T = {pk_from_B.N_T} t_in = {pk_from_B.t_in} Relay node')
+        
 
         return is_send, pk_from_A, pk_from_B
 

@@ -1,3 +1,5 @@
+from curses.ascii import ACK
+from email import utils
 import utils2 
 import numpy as np 
 from matplotlib import pyplot as plt 
@@ -8,7 +10,7 @@ class NetworkCoding:
         self._g = np.arange(0, 1.1, 0.1)
         # self._gr_arr = np.array([0.5, 0.6])
         self._gr = 0.5
-        self._q = 0.8
+        self._q = 5
         self._ga = 0.5
         self.no_slots = 10000
 
@@ -57,19 +59,21 @@ class NetworkCoding:
                 if R_is_send == False: 
                     if A_is_send:  
                         if B_is_send: 
-                            A.enqueue_a_packet(A_pk)
-                            B.enqueue_a_packet(B_pk)
+                            A.received_feedback(utils2.FAILED)
+                            B.received_feedback(utils2.FAILED)
                         else:
                             R.enqueue(A_pk, islot)
+                            A.received_feedback(ACK)
                     else: 
                         if B_is_send: 
                             R.enqueue(B_pk, islot)
+                            B.received_feedback(ACK)
 
                 else:
                     if A_is_send == False and B_is_send == False: 
                         if vA_not_empty and vB_not_empty: # R sends a coding packet        
                             delay_pkt = delay_pkt + R.get_delay_pkt(pk_from_A, islot) + R.get_delay_pkt(pk_from_B, islot)
-                            pass_pkt = pass_pkt + 2 
+                            pass_pkt = pass_pkt + 2
                         
                         elif vA_not_empty and vB_not_empty == False: # R sends successfully a packet from A to B 
                             delay_pkt = delay_pkt + R.get_delay_pkt(pk_from_A, islot)
@@ -85,7 +89,7 @@ class NetworkCoding:
                             pass_pkt = pass_pkt + 1
                         if vA_not_empty: 
                             R.enqueue_collision(pk_from_A)
-                            A.enqueue_a_packet(A_pk)
+                            A.received_feedback(utils2.FAILED)
                             
                     elif A_is_send == False and B_is_send == True: 
                         if vA_not_empty != 0: 
@@ -93,7 +97,7 @@ class NetworkCoding:
                             pass_pkt = pass_pkt + 1
                         if vB_not_empty: 
                             R.enqueue_collision(pk_from_B)
-                            B.enqueue_a_packet(B_pk)
+                            B.received_feedback(utils2.FAILED)
 
 
             throuput_sim.append(pass_pkt/self.no_slots)

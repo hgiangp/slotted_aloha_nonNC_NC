@@ -1,5 +1,11 @@
 from collections import deque
-import numpy as np 
+import numpy as np
+
+ACK = 1
+FAILED = 2
+
+BACKLOGGED_MODE = 1
+NORMAL_MODE = 2
 class Packet: 
     def __init__(self, src, t_in): 
         self.src = src 
@@ -29,21 +35,33 @@ class EndNode:
         self.ga = g_a 
         self.gr = g_r 
         self.name = name
+        self.mode = BACKLOGGED_MODE
+        self.tmp_pk = Packet(self.name, -1)
+
+    def set_mode(self, mode): 
+        self.mode = mode
     
 
     def send_a_packet(self, id): 
         is_new_pkt = np.random.rand() < self.ga 
-        is_send = is_new_pkt or (len(self.qnode) > 0 and np.random.rand() < self.gr)
-        
-        A_pk = Packet(self.name, -1)
-        if is_send: 
-            A_pk = Packet(self.name, id) if is_new_pkt else self.qnode.pop()
-            A_pk.is_sent() # remember the number of trans and retransmissions
-
-        return is_send, A_pk 
+        if is_new_pkt:
+            is_send = True 
+            self.set_mode(NORMAL_MODE)
+            self.tmp_pk = Packet(self.name, id)
+        else:
+            self.set_mode(BACKLOGGED_MODE) 
+            is_send = len(self.qnode) > 0 and np.random.rand() < self.gr
+            self.tmp_pk = self.qnode[0] if is_send else Packet(self.name, -1)
+            
+        return is_send, self.tmp_pk 
     
-    def enqueue_a_packet(self, packet): # collision happened 
-        self.qnode.appendleft(packet)
+    def received_feedback(self, fb):
+        if fb == ACK: 
+            self.qnode.pop()
+        else: 
+            if self.mode == NORMAL_MODE: 
+                self.qnode.append(self.tmp_pk)
+                self.set_mode(BACKLOGGED_MODE)
     
 
 class RelayNode: 
@@ -88,46 +106,5 @@ class RelayNode:
 
 def run(): 
     A = EndNode('A', 0.5, 0.5)
-    is_send, pk = A.send_a_packet(1)
-    print(f'issend = {is_send} pkinfo = {pk.t_in}-{pk.N_T}')
-    A.enqueue_a_packet(pk)
-    is_send, pk = A.send_a_packet(2)
-    print(f'issend = {is_send} pkinfo = {pk.t_in}-{pk.N_T}')
-    A.enqueue_a_packet(pk)
-    is_send, pk = A.send_a_packet(3)
-    print(f'issend = {is_send} pkinfo = {pk.t_in}-{pk.N_T}')
-    A.enqueue_a_packet(pk)
-    is_send, pk = A.send_a_packet(4)
-    print(f'issend = {is_send} pkinfo = {pk.t_in}-{pk.N_T}')
-
-    A.enqueue_a_packet(pk)
-    is_send, pk = A.send_a_packet(5)
-    print(f'issend = {is_send} pkinfo = {pk.t_in}-{pk.N_T}')
-
-    A.enqueue_a_packet(pk)
-    is_send, pk = A.send_a_packet(6)
-    print(f'issend = {is_send} pkinfo = {pk.t_in}-{pk.N_T}')
-
-    A.enqueue_a_packet(pk)
-    is_send, pk = A.send_a_packet(7)
-    print(f'issend = {is_send} pkinfo = {pk.t_in}-{pk.N_T}')
-
-    A.enqueue_a_packet(pk)
-    is_send, pk = A.send_a_packet(8)
-    print(f'issend = {is_send} pkinfo = {pk.t_in}-{pk.N_T}')
-
-    A.enqueue_a_packet(pk)
-    is_send, pk = A.send_a_packet(9)
-    print(f'issend = {is_send} pkinfo = {pk.t_in}-{pk.N_T}')
-
-    A.enqueue_a_packet(pk)
-    is_send, pk = A.send_a_packet(10)
-    print(f'issend = {is_send} pkinfo = {pk.t_in}-{pk.N_T}')
-
-    A.enqueue_a_packet(pk)
-    is_send, pk = A.send_a_packet(11)
-    print(f'issend = {is_send} pkinfo = {pk.t_in}-{pk.N_T}')
-
-
 
 run()
