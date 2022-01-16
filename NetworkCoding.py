@@ -141,6 +141,17 @@ class NetworkCoding:
         ax2.legend()
         # plt.show()
         plt.savefig(f'./th_delay_collsion_{self.no_slots}.png')
+        plt.close()
+
+        plt.plot(G, delay_ana, '-', label='delay_ana') 
+        plt.plot(G, delay_sim, 'o', label='delay_sim')
+        plt.xlabel('Offered traffic, G')
+        plt.title('Delay, D (slots)')
+        plt.xticks(G)
+        plt.grid()
+        plt.savefig(f'delay.png')
+
+
 
 
 NC = NetworkCoding()
