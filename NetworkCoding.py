@@ -148,6 +148,7 @@ class NetworkCoding:
         plt.xlabel('Offered traffic, G')
         plt.title('Delay, D (slots)')
         plt.xticks(G)
+        plt.legend()
         plt.grid()
         plt.savefig(f'delay.png')
 
