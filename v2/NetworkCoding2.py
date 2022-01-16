@@ -1,6 +1,6 @@
 from curses.ascii import ACK
 from email import utils
-import utils2 
+import v2.utils2 as utils2 
 import numpy as np 
 from matplotlib import pyplot as plt 
 

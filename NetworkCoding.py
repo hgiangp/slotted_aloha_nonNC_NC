@@ -4,16 +4,16 @@ from matplotlib import pyplot as plt
 
 class NetworkCoding: 
     def __init__(self):
-        self._g = np.arange(0, 1.01, 0.05)
-        self._ga = np.array([0, 0.1, 0.1, 0.2, 0.3, 0.2, 0.3, 0.4, 0.5, 0.7, 1])
-        self._gr = np.array([0, 0.0, 0.3, 0.2, 0.2, 0.7, 0.6, 0.6, 0.7, 0.7, 1])
-        # self._g = np.array([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])
+        # self._g = np.arange(0, 1.01, 0.05)
+        self._ga = np.array([0, 0.1, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 1])
+        self._gr = np.array([0, 0.0, 0.3, 0.2, 0.2, 0.2, 0.25, 0.3, 0.35, 0.5, 1])
+        self._g = np.array([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])
         self._q = 0.6
         self.no_slots = 100000
 
     def delay_coding(self, gr, G, q):
         delay1 = 1 if G != 0 else 0 
-        delay2 = (q * G * (6 + G) - G*G)/ (2 * gr * q * (2 - G)) if (gr*G != 0) else 0 
+        delay2 = (q * G * (6 + G) - G*G)/ (2 * gr * q * (2 - G)) if (gr != 0 and G != 2) else 0 
         delay3 = 4/((2 - G) * (q *(2 + G) - G)) if (G!= 2 and G != 0) else 0 
         return (delay1 + delay2 + delay3)
     
@@ -30,11 +30,12 @@ class NetworkCoding:
 
 
         for idx in range(len(self._g)):
-            
-            # ga = self._ga[idx]
-            # gr = self._gr[idx]
-            ga = self._g[idx]
-            gr = 0
+
+            # ga = self._g[idx]
+            # gr = 0
+                        
+            ga = self._ga[idx]
+            gr = self._gr[idx]
             g = self._g[idx]
             print(f'{idx} - {g}')
 
@@ -129,7 +130,7 @@ class NetworkCoding:
         ax1.set_title('Throughput, S (pkts/slot)')
         ax1.legend()
         ax1.grid()
-        
+
         ax2.plot(G, delay_ana, '-', label='delay_ana') 
         ax2.plot(G, delay_sim, 'o', label='delay_sim')
         ax2.set_xlabel('Offered traffic, G')
@@ -139,7 +140,7 @@ class NetworkCoding:
         ax2.grid()
         ax2.legend()
         # plt.show()
-        plt.savefig(f'./th_delay_collsion_{self.no_slots}_gr0.png')
+        plt.savefig(f'./th_delay_collsion_{self.no_slots}.png')
 
 
 NC = NetworkCoding()
